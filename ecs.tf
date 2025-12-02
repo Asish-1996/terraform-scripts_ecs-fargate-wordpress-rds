@@ -12,14 +12,8 @@ resource "aws_cloudwatch_log_group" "ecs_log_group" {
   }
 }
 
-data "aws_iam_role" "existing_ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
-}
-
 resource "aws_iam_role" "ecs_task_execution_role" {
-  count = length(data.aws_iam_role.existing_ecs_task_execution_role.arn) == 0 ? 1 : 0
-
-  name = "ecsTaskExecutionRole"
+  name = "ecsTaskExecutionRole-tf"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -36,9 +30,8 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
-  count = length(data.aws_iam_role.existing_ecs_task_execution_role.arn) == 0 ? 1 : 0
-
-  role       = aws_iam_role.ecs_task_execution_role[count.index].name
+  
+  role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
@@ -50,7 +43,7 @@ resource "aws_ecs_task_definition" "wordpress" {
   cpu                   = 512
   memory                = 1024
 
-  execution_role_arn = length(data.aws_iam_role.existing_ecs_task_execution_role.arn) == 0 ? aws_iam_role.ecs_task_execution_role[0].arn : data.aws_iam_role.existing_ecs_task_execution_role.arn
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
   runtime_platform {
     operating_system_family = "LINUX"
