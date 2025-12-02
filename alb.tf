@@ -15,7 +15,7 @@ resource "aws_lb" "default" {
 resource "aws_lb_target_group" "default" {
     name     = "wp-alb-tg-tf"
     port     = 80
-    protocol = "HTTP"
+    protocol = "HTTPS"
     vpc_id      = "${aws_vpc.default.id}"
     target_type = "ip"
 
@@ -31,7 +31,7 @@ resource "aws_lb_target_group" "default" {
 resource "aws_lb_listener" "default" {
     load_balancer_arn = "${aws_lb.default.arn}"
     port              = "80"
-    protocol          = "HTTP"
+    protocol          = "HTTPS"
 
     default_action {
         type             = "forward"
